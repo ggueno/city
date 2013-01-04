@@ -21,7 +21,7 @@ class Object{
 
         void addMesh(Mesh* mesh);
         void drawObject();
-        void drawObject(GLuint shaderID);
+        void drawObject(GLuint shaderID, int nb = 1);
 
         inline void setName(const std::string &name){ m_name = name; };
         inline bool isVisible(){ return m_visible; };

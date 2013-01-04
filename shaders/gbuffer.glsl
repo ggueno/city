@@ -2,6 +2,7 @@
 uniform mat4 Projection;
 uniform mat4 View;
 uniform mat4 Object;
+uniform float gridWidth;
 
 in vec3 VertexPosition;
 in vec3 VertexNormal;
@@ -17,11 +18,14 @@ void main(void)
 	uv = VertexTexCoord;
 	normal = vec3(Object * vec4(VertexNormal, 1.0));; 
 	position = vec3(Object * vec4(VertexPosition, 1.0));
-	//position.x += (gl_InstanceID % 8) * 1.5; 
-	//position.y += (gl_InstanceID % 4) * 1.5; 
-	//position.z += (int(gl_InstanceID / 8) * 1.5); 
 
-	vEyeSpacePos = View * Object * vec4(VertexPosition,1.0);
+	vEyeSpacePos = View * vec4(position, 1.0);
+	
+	// float grid_width = 50.0;
+	position.x += mod(gl_InstanceID, 3) * gridWidth; 
+	//position.y += gl_InstanceID * 1.5; 
+	//position.z += int(gl_InstanceID / 3) * gridWidth;  
+
     
 	gl_Position = Projection * View * vec4(position, 1.0);
 }

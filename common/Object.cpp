@@ -42,13 +42,15 @@ void Object::addMesh(Mesh* mesh)
 }
 
 //modelview = view en argument
-void Object::drawObject(GLuint shaderID)
+void Object::drawObject(GLuint shaderID, int nb)
 {
     if(!m_visible) return;
 
 
     for(unsigned int i=0; i<m_vecMesh.size(); i++){
-        m_vecMesh[i]->drawMesh(m_model,shaderID);
+
+        m_vecMesh[i]->drawMeshInstanced(m_model,shaderID, nb);
+        //m_vecMesh[i]->drawMesh(m_model,shaderID);
         //printf("shader=%d \n",m_shaderID);
         //m_vecMesh[i]->drawMeshSimple();
     }

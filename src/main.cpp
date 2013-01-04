@@ -141,7 +141,18 @@ int main( int argc, char **argv )
     int x;
     int y;
     int comp; 
-    unsigned char * diffuse = stbi_load("textures/spnza_bricks_a_diff.tga", &x, &y, &comp, 3);
+
+        unsigned char * skybox = stbi_load("textures/skybox.jpg", &x, &y, &comp, 3);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textures[2]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, skybox);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    fprintf(stderr, "skybox %dx%d:%d\n", x, y, comp);
+    
+    unsigned char * diffuse = stbi_load("textures/grain_diff.jpg", &x, &y, &comp, 3);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textures[0]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, diffuse);
@@ -150,7 +161,7 @@ int main( int argc, char **argv )
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     fprintf(stderr, "Diffuse %dx%d:%d\n", x, y, comp);
-    unsigned char * spec = stbi_load("textures/spnza_bricks_a_spec.tga", &x, &y, &comp, 1);
+    unsigned char * spec = stbi_load("textures/grain_speccc.jpg", &x, &y, &comp, 1);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, textures[1]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, x, y, 0, GL_RED, GL_UNSIGNED_BYTE, spec);
@@ -160,15 +171,7 @@ int main( int argc, char **argv )
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     fprintf(stderr, "Spec %dx%d:%d\n", x, y, comp);
 
-    unsigned char * skybox = stbi_load("textures/skybox.jpg", &x, &y, &comp, 3);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textures[2]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, diffuse);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    fprintf(stderr, "skybox %dx%d:%d\n", x, y, comp);
+
 
     // Try to load and compile shader
     int status;
@@ -190,6 +193,7 @@ int main( int argc, char **argv )
     GLuint gbuffer_fogStartLocation = glGetUniformLocation(gbuffer_shader.program, "fogStart");
     GLuint gbuffer_fogEndLocation = glGetUniformLocation(gbuffer_shader.program, "fogEnd");
     GLuint gbuffer_fogDensityLocation = glGetUniformLocation(gbuffer_shader.program, "fogDensity");
+    GLuint gbuffer_gridWidthLocation = glGetUniformLocation(gbuffer_shader.program, "gridWidth");
 
     // Load Blit shader
     ShaderGLSL blit_shader;
@@ -378,8 +382,9 @@ int main( int argc, char **argv )
 
 
     //BUILDING THE CITY
-    float grid_width = 50.0;
-    Grid * g = new Grid(Vec3D(-grid_width/2,-1.0,-grid_width/2), grid_width, grid_width,3,5.0,1.0);
+    float gridWidth = 50.0;
+    float instanced = 1;
+    Grid * g = new Grid(Vec3D(-gridWidth*instanced/2,-1.0,-gridWidth*instanced/2), gridWidth, gridWidth,3,5.0,1.0);
     Lot * l = g->getOneLot();
     Sphere *  s = new Sphere(1.0,64,64,1);
     Object * skydome = new Object("skydome");
@@ -604,6 +609,7 @@ int main( int argc, char **argv )
         glUniform1f(gbuffer_fogStartLocation, fogStart);
         glUniform1f(gbuffer_fogEndLocation, fogEnd);
         glUniform1f(gbuffer_fogDensityLocation, fogDensity);
+        glUniform1f(gbuffer_gridWidthLocation, gridWidth);
 
         // Bind textures
         glActiveTexture(GL_TEXTURE0);
@@ -619,7 +625,7 @@ int main( int argc, char **argv )
 
         // Draw Buildings
         for(int i=0; i<buildings.size(); ++i){
-            buildings[i]->drawObject(gbuffer_shader.program);
+            buildings[i]->drawObject(gbuffer_shader.program, instanced*instanced);
         }
 
         glActiveTexture(GL_TEXTURE0);
