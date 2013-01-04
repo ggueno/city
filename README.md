@@ -6,10 +6,10 @@ open GL 3.3 & GLSL 1.50
 
 ==== 
 
-Guénolé GUÉMAS,
-Jacqueline JAYACHANDRAN,
-Manuel JORDAN
-IMAC 3
+Guénolé GUÉMAS,<br />
+Jacqueline JAYACHANDRAN,<br />
+Manuel JORDAN<br />
+IMAC 3<br />
 
 ===
 
@@ -34,11 +34,11 @@ Use
 Camera
 ----
 
--Use SHIFT + Right Button Pressed to Zoom
--Use SHIFT + Left Button Pressed to Rotate
--Use SHIFT + Center Button to Move
-
-Use BACKSPACE to hideUI and debug viewport.
+-Use SHIFT + Right Button Pressed to Zoom<br />
+-Use SHIFT + Left Button Pressed to Rotate<br />
+-Use SHIFT + Center Button to Move<br />
+<br /><br />
+Use BACKSPACE to hideUI and debug viewport.<br />
 
 
 
