@@ -19,9 +19,9 @@ void Sphere::build(GLfloat r, GLsizei discLat, GLsizei discLong, int normalSens 
             uvs.push_back(i * rcpLat);
             uvs.push_back(1.f - j * rcpLong);
 
-            normals.push_back(sin(i * dPhi) * cosTheta);
-            normals.push_back(sinTheta);
-            normals.push_back(cos(i * dPhi) * cosTheta);
+            normals.push_back(normalSens * sin(i * dPhi) * cosTheta);
+            normals.push_back(normalSens * sinTheta);
+            normals.push_back(normalSens * cos(i * dPhi) * cosTheta);
 
             vertices.push_back(r*sin(i * dPhi) * cosTheta);
             vertices.push_back(r*sinTheta);

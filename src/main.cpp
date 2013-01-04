@@ -260,6 +260,7 @@ int main( int argc, char **argv )
     GLuint laccum_materialLocation = glGetUniformLocation(laccum_shader.program, "Material");
     GLuint laccum_normalLocation = glGetUniformLocation(laccum_shader.program, "Normal");
     GLuint laccum_depthLocation = glGetUniformLocation(laccum_shader.program, "Depth");
+    GLuint laccum_fogLocation = glGetUniformLocation(laccum_shader.program, "Fog");
     GLuint laccum_inverseViewProjectionLocation = glGetUniformLocation(laccum_shader.program, "InverseViewProjection");
     GLuint laccum_cameraPositionLocation = glGetUniformLocation(laccum_shader.program, "CameraPosition");
     GLuint laccum_lightPositionLocation = glGetUniformLocation(laccum_shader.program, "LightPosition");
@@ -365,8 +366,12 @@ int main( int argc, char **argv )
     float grid_width = 50.0;
     Grid * g = new Grid(Vec3D(-grid_width/2,-1.0,-grid_width/2), grid_width, grid_width,3,5.0,1.0);
     Lot * l = g->getOneLot();
-    Sphere *  s = new Sphere(500.0,16,16);
+    Sphere *  s = new Sphere(1.0,64,64,1);
+    Object * skydome = new Object("skydome");
+    skydome->addMesh(s);
+    skydome->scalee(300.0, 300.0, 300.0);
     std::vector<Object *> buildings;
+
 
 
     std::vector<int> faces(cube_triangleList, cube_triangleList + sizeof(cube_triangleList));
@@ -403,7 +408,7 @@ int main( int argc, char **argv )
 
     // Init frame buffers
     FramebufferGL gbufferFB;
-    status = build_framebuffer(gbufferFB, width, height, 2);
+    status = build_framebuffer(gbufferFB, width, height, 3);
 
     if (status == -1)
     {
@@ -463,7 +468,7 @@ int main( int argc, char **argv )
     float nearPlane = 1.0;
     float farPlane = 50.0;
     float gamma = 1.0;
-    float sobelCoef = 1.0;
+    float sobelCoef = 0.0;
 
     do
     {
@@ -594,6 +599,7 @@ int main( int argc, char **argv )
         for(int i=0; i<buildings.size(); ++i){
             buildings[i]->drawObject(gbuffer_shader.program);
         }
+        skydome->drawObject(gbuffer_shader.program);
         
         // Render deferred shading
         glBindFramebuffer(GL_FRAMEBUFFER, deferredShadingFB.fbo);
@@ -612,7 +618,8 @@ int main( int argc, char **argv )
         glUniformMatrix4fv(laccum_projectionLocation, 1, 0, orthoProj);
         glUniform1i(laccum_materialLocation, 0);
         glUniform1i(laccum_normalLocation, 1);
-        glUniform1i(laccum_depthLocation, 2);
+        glUniform1i(laccum_depthLocation, 3);
+        glUniform1i(laccum_fogLocation, 2);
         glUniform3fv(laccum_cameraPositionLocation, 1, cameraPosition);
         glUniformMatrix4fv(laccum_inverseViewProjectionLocation, 1, 0, iviewProjection);
 
@@ -624,8 +631,12 @@ int main( int argc, char **argv )
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, gbufferFB.colorTexId[1]);    
         // Bind depth to unit 2
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, gbufferFB.depthTexId); 
+
+        //fog
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, gbufferFB.depthTexId);        
+        glBindTexture(GL_TEXTURE_2D, gbufferFB.colorTexId[2]);        
 
         // Blit above the rest
         glDisable(GL_DEPTH_TEST);
@@ -673,7 +684,7 @@ int main( int argc, char **argv )
 
         glDisable(GL_BLEND);
         
-        // Unbind framebuffer
+        //Unbind framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         // Blur horizontally

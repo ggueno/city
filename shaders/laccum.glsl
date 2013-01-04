@@ -16,11 +16,16 @@ void main(void)
 
 #if defined(FRAGMENT)
 
+
+
+
 in vec2 uv;
 
 uniform sampler2D Material;
 uniform sampler2D Normal;
 uniform sampler2D Depth;
+uniform sampler2D Fog;
+
 uniform vec3 CameraPosition;
 uniform vec3  LightPosition;
 uniform vec3  LightColor;
@@ -32,6 +37,7 @@ out vec4  Color;
 void main(void)
 {
 	vec4  material = texture(Material, uv).rgba;
+	vec4  fog = texture(Fog, uv).rgba;
 	vec3  normal = texture(Normal, uv).rgb;
 	float depth = texture(Depth, uv).r;
 	
@@ -55,8 +61,9 @@ void main(void)
 
 	vec3 color = LightColor * LightIntensity * att * (diffuse * n_dot_l + spec * vec3(1.0, 1.0, 1.0) *  pow(n_dot_h, spec * 100.0));
 
-	Color = vec4(color, 1.0);
-
+	Color = vec4(color, 1.0) + fog;
+	//Color = fog;
+	//Color = material;
 	//Color = vec4(depth, 0.0 , 0.0, 1.0);
 	//Color = vec4(normal, 1.0);
 }

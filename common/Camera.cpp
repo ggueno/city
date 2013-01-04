@@ -13,7 +13,7 @@ Camera::Camera() :
 	m_theta(3.14/2.f),
 	m_radius(10.f),
 	m_near(0.1f),
-	m_far(100.f),
+	m_far(1000.f),
 	m_fov(60)		
 {
 	vec4fCopy(m_o, NULLVEC4f);
