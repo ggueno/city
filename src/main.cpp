@@ -21,6 +21,7 @@
 #include "Grid.hpp"
 #include "Sphere.hpp"
 #include "Lot.hpp"
+#include "Cylinder.hpp"
 
 
 #ifndef DEBUG_PRINT
@@ -159,6 +160,16 @@ int main( int argc, char **argv )
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     fprintf(stderr, "Spec %dx%d:%d\n", x, y, comp);
 
+    unsigned char * skybox = stbi_load("textures/skybox.jpg", &x, &y, &comp, 3);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textures[2]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, diffuse);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    fprintf(stderr, "skybox %dx%d:%d\n", x, y, comp);
+
     // Try to load and compile shader
     int status;
     ShaderGLSL gbuffer_shader;
@@ -175,6 +186,10 @@ int main( int argc, char **argv )
     GLuint gbuffer_timeLocation = glGetUniformLocation(gbuffer_shader.program, "Time");
     GLuint gbuffer_diffuseLocation = glGetUniformLocation(gbuffer_shader.program, "Diffuse");
     GLuint gbuffer_specLocation = glGetUniformLocation(gbuffer_shader.program, "Spec");
+
+    GLuint gbuffer_fogStartLocation = glGetUniformLocation(gbuffer_shader.program, "fogStart");
+    GLuint gbuffer_fogEndLocation = glGetUniformLocation(gbuffer_shader.program, "fogEnd");
+    GLuint gbuffer_fogDensityLocation = glGetUniformLocation(gbuffer_shader.program, "fogDensity");
 
     // Load Blit shader
     ShaderGLSL blit_shader;
@@ -379,8 +394,8 @@ int main( int argc, char **argv )
     std::vector<float> normals(cube_normals, cube_normals + sizeof(cube_normals));
     std::vector<float> uvs(cube_uvs, cube_uvs + sizeof(cube_uvs));
 
-    Mesh * cube = new Mesh();
-    cube->createMesh(faces, vertices, normals, uvs);
+    Mesh * cube = new Base(Vec3D(0.f,0.f,0.f),1.0,1.0,1.0);
+    //cube->createMesh(faces, vertices, normals, uvs);
 
     int i = 0;
     while(l != NULL){
@@ -395,7 +410,7 @@ int main( int argc, char **argv )
 
         //appliquer les transformations
         buildings[i]->scalee(lot_width, lot_height, lot_length);
-        buildings[i]->translatee(p.x, p.y, p.z);
+        buildings[i]->translatee(p.x, p.y + lot_height / 2.0, p.z);
 
         i++;
         l = g->getOneLot();
@@ -469,6 +484,9 @@ int main( int argc, char **argv )
     float farPlane = 50.0;
     float gamma = 1.0;
     float sobelCoef = 0.0;
+    float fogDensity = 0.01f;
+    float fogStart = 10.0f;
+    float fogEnd = 100.0f;
 
     do
     {
@@ -583,6 +601,10 @@ int main( int argc, char **argv )
         glUniform1i(gbuffer_diffuseLocation, 0);
         glUniform1i(gbuffer_specLocation, 1);
 
+        glUniform1f(gbuffer_fogStartLocation, fogStart);
+        glUniform1f(gbuffer_fogEndLocation, fogEnd);
+        glUniform1f(gbuffer_fogDensityLocation, fogDensity);
+
         // Bind textures
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -599,6 +621,9 @@ int main( int argc, char **argv )
         for(int i=0; i<buildings.size(); ++i){
             buildings[i]->drawObject(gbuffer_shader.program);
         }
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textures[2]);
         skydome->drawObject(gbuffer_shader.program);
         
         // Render deferred shading
@@ -924,7 +949,11 @@ int main( int argc, char **argv )
             imguiSlider("Blur Samples", &blurSamples, 1.0, 100.0, 1.0);
             imguiSlider("Focus plane", &focusPlane, 1.0, 100.0, 1.0);
             imguiSlider("Near plane", &nearPlane, 1.0, 100.0, 1.0);
-            imguiSlider("Far plane", &farPlane, 1.0, 100.0, 1.0);
+            imguiSlider("Far plane", &farPlane, 1.0, 500.0, 1.0);
+            imguiSlider("fogDensity", &fogDensity, 0.01, 0.03, 0.001);
+            imguiSlider("fogStart", &fogStart, 10.0, 300.0, 10.0);
+            imguiSlider("fogEnd", &fogEnd, 100.0, 700.0, 10.0);
+
 
             imguiEndScrollArea();
             imguiEndFrame();

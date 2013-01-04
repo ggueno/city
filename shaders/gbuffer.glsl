@@ -40,6 +40,10 @@ in vec4 vEyeSpacePos;
 uniform sampler2D Diffuse;
 uniform sampler2D Spec;
 
+uniform float fogStart;
+uniform float fogEnd;
+uniform float fogDensity;
+
 out vec4  Color;
 out vec4  Normal;
 out vec4  Fog;
@@ -77,10 +81,10 @@ void main(void)
   	float fFogCoord = abs(vEyeSpacePos.z/vEyeSpacePos.w);
 
     FogParameters fparams;
-    fparams.vFogColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    fparams.fStart = 40.0f;
-    fparams.fEnd = 200.0f;
-    fparams.fDensity = 0.01f;
+    fparams.vFogColor = vec4(167f/255.f, 194/255f, 1.0f, 0.9f);
+    fparams.fStart = fogStart;
+    fparams.fEnd = fogEnd;
+    fparams.fDensity = fogDensity;
     fparams.iEquation = 2;
 
 	Color = vec4(diffuse, spec);
