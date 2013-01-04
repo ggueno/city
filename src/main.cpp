@@ -151,7 +151,7 @@ int main( int argc, char **argv )
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     fprintf(stderr, "skybox %dx%d:%d\n", x, y, comp);
-    
+
     unsigned char * diffuse = stbi_load("textures/grain_diff.jpg", &x, &y, &comp, 3);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -684,8 +684,8 @@ int main( int argc, char **argv )
 
             //Update light uniforms
             float lightPosition[3] = { sin(i*3) * 10.0, 5.5, cos(j*3) * 10.0};
-            float lightColor[3] = {sin(i*3) *  1.0, 1.0 - cos(j*3), -sin(i*3)};
-            float lightIntensity = 10.0;
+            float lightColor[3] = {sin(i*3) *  1.0, 0.1 * (1.0 - cos(j*3)), 0.1 *( -sin(i*3) )};
+            float lightIntensity = 2.0;
 
             glUniform3fv(laccum_lightPositionLocation, 1, lightPosition);
             glUniform3fv(laccum_lightColorLocation, 1, lightColor);
