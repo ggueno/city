@@ -165,8 +165,6 @@ void Grid::initDrawGrid(){
     std::vector<float> vertices;
     std::vector<float> normals;
 
-    std::cout << listParcels.size() << std::endl;
-
     for(size_t i = 0; i<listParcels.size();i++){
         //listParcels[i]->initBuffers();
 

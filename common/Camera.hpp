@@ -22,8 +22,12 @@ public :
 	void setPerspective(float near, float far, float fov, float ratio);
 	//! Center the view on a particular point
 	void centerOn(float center[4], float halfDists[4]);
+
+	float * PoI(){ return m_o; };
 	//! Returns camera position
 	const float * position() const { return m_eye; }
+
+	//const void setPosition(float * eye){ m_eye = eye; }
 	//! Returns near distance
 	float near() const { return m_near; }
 	//! Returns far distance

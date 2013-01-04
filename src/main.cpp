@@ -562,6 +562,8 @@ int main( int argc, char **argv )
             guiStates.lockPositionX = mousex;
             guiStates.lockPositionY = mousey;
         }
+
+        camera.turn(0.0, sin(t)*0.1);
   
         // Get camera matrices
         float projection[16];

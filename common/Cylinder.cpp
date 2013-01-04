@@ -196,9 +196,7 @@ void Base::build(Vec3D center, float height, float width, float length){
     std::vector<float> uvs(cube_uvs, cube_uvs + sizeof cube_uvs / sizeof (float));
     std::vector<float> normals(cube_normals, cube_normals + sizeof cube_normals / sizeof (float));
     std::vector<float> vertices(cube_vertices, cube_vertices + sizeof cube_vertices / sizeof (float));
-
-    std::cout << "triangleList.size()=" << triangleList.size() << std::endl;
-    
+      
     createMesh(triangleList, vertices, normals, uvs);
 
 }
